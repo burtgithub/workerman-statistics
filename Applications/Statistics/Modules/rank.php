@@ -118,13 +118,13 @@ function setRank2($date){
         $rankname_f =   $rankname_f[0];
         $all[$rankname_f]['num']    =   0;
         $all[$rankname_f]['time']   =   0;
-        print_r($tArr);exit;
+
         foreach($tArr AS $tv){
             if($tv){
                 for($i=0;$i<10;$i++){
                     $tv     =   str_replace("  "," ",$tv);
                 }
-
+                print_r($tv);exit;
                 $tvArr  =   explode(" ",$tv);
 
                 $all[$rankname_f]['num']+=$tvArr[2];
