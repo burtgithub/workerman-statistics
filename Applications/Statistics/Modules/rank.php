@@ -124,7 +124,7 @@ function setRank2($date){
                 for($i=0;$i<10;$i++){
                     $tv     =   str_replace("  "," ",$tv);
                 }
-                print_r($tv);exit;
+                var_dump($tv);exit;
                 $tvArr  =   explode(" ",$tv);
 
                 $all[$rankname_f]['num']+=$tvArr[2];
