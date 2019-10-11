@@ -13,6 +13,7 @@ namespace Statistics\Modules;
 function setRank($date){
 
 
+
     //文件不存在
     $dataroot   =   __DIR__."/../data/statistic/statistic/api/*{$date}";
     $all        =   [];
@@ -24,13 +25,12 @@ function setRank($date){
         $rankname_f =   $rankname_f[0];
         $all[$rankname_f]['num']    =   0;
         $all[$rankname_f]['time']   =   0;
+
         foreach($tArr AS $tv){
             if($tv){
-                for($i=0;$i<10;$i++){
-                    $tv     =   str_replace("  "," ",$tv);
-                }
 
-                $tvArr  =   explode(" ",$tv);
+
+                $tvArr  =   explode("\t",$tv);
 
                 $all[$rankname_f]['num']+=$tvArr[2];
                 $all[$rankname_f]['time']+=(int)($tvArr[2]*$tvArr[3]*1000);
@@ -60,6 +60,7 @@ function setRank($date){
     $rankfile   =   $rankroot."/rank_".$date;
 
     file_put_contents($rankfile,json_encode($setFile));
+    return $setFile;
 
 }
 
