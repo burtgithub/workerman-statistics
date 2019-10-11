@@ -14,40 +14,68 @@
 namespace Statistics\Modules;
 function rank($module, $interface, $date, $start_time, $offset, $count)
 {
-        $module_str ='';
-        foreach(\Statistics\Lib\Cache::$modulesDataCache as $mod => $interfaces)
-        {
-                if($mod == 'WorkerMan')
-                {
-                    continue;
-                }
-                $module_str .= '<li><a href="/?fn=statistic&module='.$mod.'">'.$mod.'</a></li>';
-                if($module == $mod)
-                {
-                    foreach ($interfaces as $if)
-                    {
-                        $module_str .= '<li>&nbsp;&nbsp;<a href="/?fn=statistic&module='.$mod.'&interface='.$if.'">'.$if.'</a></li>';
-                    }
-                }
-        } 
-        
-        $log_data_arr = getStasticLog($module, $interface, $start_time ,$offset, $count);
-        unset($_GET['fn'], $_GET['ip'], $_GET['offset']);
-        $log_str = '';
-        foreach($log_data_arr as $address => $log_data)
-        {
-            list($ip, $port) = explode(':', $address);
-            $log_str .= $log_data['data'];
-            $_GET['ip'][] = $ip;
-            $_GET['offset'][] = $log_data['offset'];
-        }
-        $log_str = nl2br(str_replace("\n", "\n\n", $log_str));
-        $next_page_url = http_build_query($_GET);
-        $log_str .= "</br><center><a href='/?fn=logger&$next_page_url'>下一页</a></center>";
+    $rankroot   =   __DIR__."/../data/statistic/rank";
+
+    @mkdir($rankroot,0777,true);
+
+    if(!$date){
+            $date   =   date("Y-m-d");
+    }
+
+    $rankfile   =   $rankroot."/rank_".$date;
+    //echo $rankfile;
+    if(file_exists($rankfile)){
+        //文件存在
+        $info   =   file_get_contents($rankfile);
+        $all    =   json_decode($info,true);
+    }
+    else{
+
+        $all    =   setRank2($date);
+    }
 
 
+    $lastArr    =   [];
+    foreach ($all['data'] AS $k=>$v){
+        $tmp    =   [];
+        $tmp['name']=$k;
+        $tmp['num'] =   $v['num'];
+        $tmp['avg'] =   (int)($v['time']/$v['num']);
+        $tmp['time'] =   $v['time'];
 
+        $lastArr[]  =   $tmp;
+    }
 
+    $last_names = array_column($lastArr,'avg');
+    array_multisort($last_names,SORT_DESC,$lastArr);
+    $log_str    =   '<div class="container"><div class="row clearfix">
+    <div class="col-md-12 column"><table class="table">	<thead>	<tr><th>编号	</th><th>接口名称</th><th>平均时间(ms)</th><th>数目</th></tr>	</thead><tbody>';
+    $i=0;
+    foreach($lastArr AS $v){
+        $i++;
+        $log_str .="<tr >
+						<td>
+							{$i}
+						</td>
+						<td>
+							{$v['name']}
+						</td>
+						<td>{$v['avg']}
+						</td>
+						<td>
+							{$v['num']}
+						</td>
+					</tr>";
+
+    }
+
+    $log_str .='
+    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    ';
     // date btn
     $date_btn_str = $html_class= '';
     $query='';
@@ -67,8 +95,65 @@ function rank($module, $interface, $date, $start_time, $offset, $count)
     $date_btn_str .=  '<a href="/?fn=rank&date='."$the_date&$query".'" class="btn" type="button">'.$html_the_date.'</a>';
 
 
-    include ST_ROOT . '/Views/header.tpl.php';
+        include ST_ROOT . '/Views/header.tpl.php';
         include ST_ROOT . '/Views/rank.tpl.php';
         include ST_ROOT . '/Views/footer.tpl.php';
 }
+
+
+
+
+function setRank2($date){
+
+
+    //文件不存在
+    $dataroot   =   __DIR__."/../data/statistic/statistic/api/*{$date}";
+    $all        =   [];
+    foreach(glob($dataroot) as $php_file)
+    {
+        $tinfo  =   file_get_contents($php_file);
+        $tArr   =   explode("\n",$tinfo);
+        $rankname_f =   explode(".",basename($php_file));
+        $rankname_f =   $rankname_f[0];
+        $all[$rankname_f]['num']    =   0;
+        $all[$rankname_f]['time']   =   0;
+        foreach($tArr AS $tv){
+            if($tv){
+                for($i=0;$i<10;$i++){
+                    $tv     =   str_replace("  "," ",$tv);
+                }
+
+                $tvArr  =   explode(" ",$tv);
+
+                $all[$rankname_f]['num']+=$tvArr[2];
+                $all[$rankname_f]['time']+=(int)($tvArr[2]*$tvArr[3]*1000);
+
+            }
+
+        }
+    }
+
+    $setFile    =   [
+        "time"=>time(),
+        "data"=>$all,
+        "last"=>0
+    ];
+
+
+
+
+    $rankroot   =   __DIR__."/../data/statistic/rank";
+
+    @mkdir($rankroot,0777,true);
+
+    if(!$date){
+        $date   =   date("Y-m-d");
+    }
+
+    $rankfile   =   $rankroot."/rank_".$date;
+
+    file_put_contents($rankfile,json_encode($setFile));
+    return $setFile;
+}
+
 
