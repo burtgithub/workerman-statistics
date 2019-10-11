@@ -11,6 +11,9 @@
 				<li>
 					<a href="/?fn=logger">日志</a>
 				</li>
+                <li class="" >
+                    <a href="/?fn=rank">排行</a>
+                </li>
 				<li class="disabled">
 					<a href="#">告警</a>
 				</li>

@@ -8,6 +8,9 @@
 				<li>
 					<a href="/?fn=statistic">监控</a>
 				</li>
+                <li class="" >
+                    <a href="/?fn=rank">排行</a>
+                </li>
 				<li>
 					<a href="/?fn=logger">日志</a>
 				</li>

@@ -8,10 +8,10 @@
 				<li>
 					<a href="/?fn=statistic">监控</a>
 				</li>
-				<li class="active" >
+				<li class="" >
                     <a href="/?fn=logger">日志</a>
                 </li>
-                <li class="" >
+                <li class="active" >
                     <a href="/?fn=rank">排行</a>
                 </li>
 				<li class="disabled">
@@ -34,6 +34,12 @@
 			</ul>
 		</div>
 	</div>
+    <div class="row clearfix">
+        <div class="col-md-12 column text-center">
+            <?php echo $date_btn_str;?>
+        </div>
+    </div>
+
 	<div class="row clearfix">
 		<div class="col-md-12 column">
 		<?php echo $log_str;?>
