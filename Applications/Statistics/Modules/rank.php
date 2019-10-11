@@ -25,6 +25,7 @@ function rank($module, $interface, $date, $start_time, $offset, $count)
     $rankfile   =   $rankroot."/rank_".$date;
     //echo $rankfile;
     if(file_exists($rankfile)){
+        $all    =   setRank2($date);
         //文件存在
         $info   =   file_get_contents($rankfile);
         $all    =   json_decode($info,true);
