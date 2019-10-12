@@ -26,8 +26,10 @@ function rank($module, $interface, $date, $start_time, $offset, $count)
     //echo $rankfile;
     if(file_exists($rankfile)){
         //文件存在
+
         $info   =   file_get_contents($rankfile);
         $all    =   json_decode($info,true);
+        $all    =   setRank2($date);
     }
     else{
         $all    =   setRank2($date);
@@ -122,7 +124,7 @@ function setRank2($date){
                 $tvArr  =   explode("\t",$tv);
 
                 $all[$rankname_f]['num']+=$tvArr[2];
-                $all[$rankname_f]['time']+=(int)($tvArr[2]*$tvArr[3]*1000);
+                $all[$rankname_f]['time']+=(int)($tvArr[3]*1000);
 
             }
 

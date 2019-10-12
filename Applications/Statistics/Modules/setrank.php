@@ -33,7 +33,7 @@ function setRank($date){
                 $tvArr  =   explode("\t",$tv);
 
                 $all[$rankname_f]['num']+=$tvArr[2];
-                $all[$rankname_f]['time']+=(int)($tvArr[2]*$tvArr[3]*1000);
+                $all[$rankname_f]['time']+=(int)($tvArr[3]*1000);
 
             }
 
