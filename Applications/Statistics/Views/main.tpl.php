@@ -14,6 +14,9 @@
 				<li>
 					<a href="/?fn=logger">日志</a>
 				</li>
+				<li>
+					<a href="/?fn=spike">突刺检测</a>
+				</li>
 				<li class="disabled">
 					<a href="#">告警</a>
 				</li>

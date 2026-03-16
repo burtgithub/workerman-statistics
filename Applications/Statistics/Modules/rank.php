@@ -23,16 +23,15 @@ function rank($module, $interface, $date, $start_time, $offset, $count)
     }
 
     $rankfile   =   $rankroot."/rank_".$date;
-    //echo $rankfile;
     if(file_exists($rankfile)){
-        //文件存在
-
-        $info   =   file_get_contents($rankfile);
-        $all    =   json_decode($info,true);
-        $all    =   setRank2($date);
-    }
-    else{
-        $all    =   setRank2($date);
+        $info = file_get_contents($rankfile);
+        $all  = json_decode($info, true);
+        // 缓存超过5分钟才重新生成
+        if(empty($all) || (time() - $all['time']) > 300) {
+            $all = setRank2($date);
+        }
+    } else {
+        $all = setRank2($date);
     }
     $lastArr    =   [];
     foreach ($all['data'] AS $k=>$v){
@@ -103,31 +102,28 @@ function rank($module, $interface, $date, $start_time, $offset, $count)
 
 
 function setRank2($date){
-
-
-    //文件不存在
-    $dataroot   =   __DIR__."/../data/statistic/statistic/api/*{$date}";
-    $all        =   [];
-    foreach(glob($dataroot) as $php_file)
+    // 扫描所有模块目录，路径: data/statistic/statistic/{module}/{interface}.{date}
+    $dataroot = \Statistics\Config::$dataPath . "statistic/statistic/*/*.{$date}";
+    $all      = [];
+    foreach(glob($dataroot, GLOB_BRACE) as $php_file)
     {
-        $tinfo  =   file_get_contents($php_file);
-        $tArr   =   explode("\n",$tinfo);
-        $rankname_f =   explode(".",basename($php_file));
-        $rankname_f =   $rankname_f[0];
-        $all[$rankname_f]['num']    =   0;
-        $all[$rankname_f]['time']   =   0;
+        $basename    = basename($php_file);
+        $rankname_f  = substr($basename, 0, strrpos($basename, '.' . $date));
+        if (!$rankname_f) continue;
 
-        foreach($tArr AS $tv){
+        $tinfo  = file_get_contents($php_file);
+        $tArr   = explode("\n", $tinfo);
+
+        $all[$rankname_f]['num']  = 0;
+        $all[$rankname_f]['time'] = 0;
+
+        foreach($tArr as $tv){
             if($tv){
-
-
-                $tvArr  =   explode("\t",$tv);
-
-                $all[$rankname_f]['num']+=$tvArr[2];
-                $all[$rankname_f]['time']+=(int)($tvArr[3]*1000);
-
+                $tvArr = explode("\t", $tv);
+                if(count($tvArr) < 4) continue;
+                $all[$rankname_f]['num']  += (int)$tvArr[2];
+                $all[$rankname_f]['time'] += (int)($tvArr[3] * 1000);
             }
-
         }
     }
 
